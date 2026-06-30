@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Verification Badge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+        .app-container {
+            max-width: 400px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            padding: 32px 24px 20px;
+            text-align: center;
+        }
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #6C63FF, #4A3FD4);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 36px;
+            color: white;
+            box-shadow: 0 8px 24px rgba(108, 99, 255, 0.3);
+        }
+        h1 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #1a1a2e;
+        }
+        .subtitle {
+            color: #6b7280;
+            font-size: 14px;
+            margin: 4px 0 20px;
+        }
+
+        /* Tabs */
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: #f0f2f5;
+            border-radius: 14px;
+            padding: 4px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            color: #6b7280;
+        }
+        .tab-btn.active {
+            background: white;
+            color: #1a1a2e;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .form-group {
+            display: none;
+        }
+        .form-group.active {
+            display: block;
+        }
+
+        .input-field {
+            margin-bottom: 14px;
+            text-align: left;
+        }
+        .input-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+        .input-field input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            font-size: 15px;
+            outline: none;
+            background: #fafbfc;
+            transition: 0.3s;
+        }
+        .input-field input:focus {
+            border-color: #6C63FF;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.08);
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #6C63FF, #4A3FD4);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 4px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(108, 99, 255, 0.35);
+        }
+        .btn-primary:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .error-msg {
+            color: #ef4444;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+        .error-msg.show {
+            display: block;
+        }
+
+        /* Ad Screen */
+        .ad-screen {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f2f5;
+            animation: fadeIn 0.4s ease;
+        }
+        .ad-screen.active {
+            display: block;
+        }
+        .ad-progress {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+        .ad-progress .dot {
+            flex: 1;
+            height: 4px;
+            border-radius: 4px;
+            background: #e5e7eb;
+            transition: 0.3s;
+        }
+        .ad-progress .dot.watched {
+            background: #6C63FF;
+        }
+        .ad-progress .dot.current {
+            background: #6C63FF;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .ad-card {
+            background: #f8f9ff;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 12px;
+        }
+        .ad-card .ad-icon {
+            font-size: 40px;
+            display: block;
+        }
+        .ad-card .ad-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-top: 4px;
+        }
+        .ad-card .ad-desc {
+            color: #6b7280;
+            font-size: 14px;
+            margin: 4px 0 8px;
+        }
+        .ad-card .ad-timer {
+            font-size: 36px;
+            font-weight: 800;
+            color: #6C63FF;
+        }
+        .ad-card .ad-label {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .ad-counter {
+            font-size: 14px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+        .btn-ad {
+            width: 100%;
+            padding: 14px;
+            background: #6C63FF;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-ad:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .btn-ad:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(108, 99, 255, 0.3);
+        }
+
+        /* Congratulations */
+        .congrats-screen {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f2f5;
+            animation: fadeIn 0.6s ease;
+        }
+        .congrats-screen.active {
+            display: block;
+        }
+        .congrats-screen .big-icon {
+            font-size: 64px;
+            display: block;
+        }
+        .congrats-screen h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1a1a2e;
+            margin: 4px 0;
+        }
+        .congrats-screen .badge {
+            font-size: 48px;
+            display: block;
+            margin: 4px 0;
+        }
+        .congrats-screen p {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 4px 0 16px;
+        }
+        .btn-facebook {
+            width: 100%;
+            padding: 16px;
+            background: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-facebook:hover {
+            background: #166fe5;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(24, 119, 242, 0.35);
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 11px;
+            color: #9ca3af;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-icon">✅</div>
+        <h1>Verification Badge</h1>
+        <p class="subtitle">Watch 20 ads to verify your account</p>
+
+        <!-- Tabs -->
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="login">Sign In</button>
+            <button class="tab-btn" data-tab="signup">Sign Up</button>
+        </div>
+
+        <!-- Login Form -->
+        <div class="form-group active" id="loginForm">
+            <div class="input-field">
+                <label>Email or Username</label>
+                <input type="text" id="loginEmail" placeholder="Enter your email or username">
+            </div>
+            <div class="input-field">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password">
+            </div>
+            <div id="loginError" class="error-msg">⚠️ Please fill in all fields</div>
+            <button class="btn-primary" id="loginBtn">Sign In & Start Watching</button>
+        </div>
+
+        <!-- Sign Up Form -->
+        <div class="form-group" id="signupForm">
+            <div class="input-field">
+                <label>Full Name</label>
+                <input type="text" id="signupName" placeholder="Enter your full name">
+            </div>
+            <div class="input-field">
+                <label>Email</label>
+                <input type="email" id="signupEmail" placeholder="Enter your email">
+            </div>
+            <div class="input-field">
+                <label>Password</label>
+                <input type="password" id="signupPassword" placeholder="Create a password">
+            </div>
+            <div id="signupError" class="error-msg">⚠️ Please fill in all fields</div>
+            <button class="btn-primary" id="signupBtn">Sign Up & Start Watching</button>
+        </div>
+
+        <!-- Ad Screen -->
+        <div class="ad-screen" id="adScreen">
+            <div class="ad-progress" id="adProgress"></div>
+            <div class="ad-counter" id="adCounter">Ad 1 of 20</div>
+            <div class="ad-card">
+                <span class="ad-icon" id="adIcon">📱</span>
+                <div class="ad-title" id="adTitle">Premium Offer</div>
+                <div class="ad-desc" id="adDesc">Watch this ad to earn your badge</div>
+                <div class="ad-timer" id="adTimer">5</div>
+                <div class="ad-label">⏳ Sponsored content</div>
+            </div>
+            <button class="btn-ad" id="watchAdBtn" disabled>Please wait...</button>
+        </div>
+
+        <!-- Congratulations -->
+        <div class="congrats-screen" id="congratsScreen">
+            <span class="big-icon">🎉</span>
+            <h2>Congratulations!</h2>
+            <span class="badge">🏅</span>
+            <p>
+                <strong>You have earned the Verification Badge!</strong><br>
+                20 ads completed successfully.
+            </p>
+            <button class="btn-facebook" id="facebookBtn">
+                🔵 Login with Facebook
+            </button>
+            <p style="font-size:12px; color:#888; margin-top:8px;">
+                Click to verify your identity via Facebook
+            </p>
+        </div>
+
+        <div class="footer">Verification Badge v2.0</div>
+    </div>
+
+    <script>
+        const TOTAL_ADS = 20;
+        let currentAd = 0;
+        let timerInterval = null;
+
+        // ============ AD DATA (20 different ads) ============
+        const ads = [
+            { icon: '📱', title: 'Premium App', desc: 'Download now and get premium free for 30 days!' },
+            { icon: '🛍️', title: 'Fashion Sale', desc: 'Up to 70% off on all summer collections.' },
+            { icon: '🍕', title: 'Food Delivery', desc: 'Get 50% off your first order today.' },
+            { icon: '🎮', title: 'New Game', desc: 'Join the battle royale with 100M players.' },
+            { icon: '🏋️', title: 'Fitness Pro', desc: 'Home workouts that really work. Try now!' },
+            { icon: '📚', title: 'Audiobooks', desc: 'Listen to 1000+ books free for 2 months.' },
+            { icon: '💎', title: 'Crypto Wallet', desc: 'Secure your crypto with the best wallet.' },
+            { icon: '✈️', title: 'Travel Deals', desc: 'Flights under $100. Book your next trip!' },
+            { icon: '🎵', title: 'Music Stream', desc: 'Ad-free music for 3 months. Sign up!' },
+            { icon: '📸', title: 'Photo Editor', desc: 'Professional editing tools in your pocket.' },
+            { icon: '🛒', title: 'Shopping App', desc: 'Exclusive deals just for new users.' },
+            { icon: '🏦', title: 'Banking App', desc: 'Open an account in 5 minutes. Zero fees.' },
+            { icon: '📺', title: 'Streaming TV', desc: 'Watch your favorite shows. 7-day free trial.' },
+            { icon: '🚗', title: 'Ride Sharing', desc: 'Get $10 off your first 5 rides.' },
+            { icon: '🧘', title: 'Meditation App', desc: 'Find peace with daily guided meditation.' },
+            { icon: '💻', title: 'VPN Secure', desc: 'Protect your privacy online. 30-day trial.' },
+            { icon: '📝', title: 'Note Taking', desc: 'The smartest notes app with AI integration.' },
+            { icon: '🏠', title: 'Real Estate', desc: 'Find your dream home with our new listing.' },
+            { icon: '🎓', title: 'Online Course', desc: 'Learn anything. 50% off first course.' },
+            { icon: '💊', title: 'Health Tracker', desc: 'Monitor your health with smart insights.' }
+        ];
+
+        // ============ DOM ELEMENTS ============
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
+        const loginEmail = document.getElementById('loginEmail');
+        const loginPassword = document.getElementById('loginPassword');
+        const signupName = document.getElementById('signupName');
+        const signupEmail = document.getElementById('signupEmail');
+        const signupPassword = document.getElementById('signupPassword');
+        const loginError = document.getElementById('loginError');
+        const signupError = document.getElementById('signupError');
+        const adScreen = document.getElementById('adScreen');
+        const adProgress = document.getElementById('adProgress');
+        const adCounter = document.getElementById('adCounter');
+        const adIcon = document.getElementById('adIcon');
+        const adTitle = document.getElementById('adTitle');
+        const adDesc = document.getElementById('adDesc');
+        const adTimer = document.getElementById('adTimer');
+        const watchAdBtn = document.getElementById('watchAdBtn');
+        const congratsScreen = document.getElementById('congratsScreen');
+        const facebookBtn = document.getElementById('facebookBtn');
+
+        // ============ PROGRESS DOTS ============
+        function initProgress() {
+            adProgress.innerHTML = '';
+            for (let i = 0; i < TOTAL_ADS; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                if (i < currentAd) dot.classList.add('watched');
+                if (i === currentAd) dot.classList.add('current');
+                adProgress.appendChild(dot);
+            }
+        }
+
+        function updateProgress() {
+            const dots = adProgress.querySelectorAll('.dot');
+            dots.forEach((dot, i) => {
+                dot.className = 'dot';
+                if (i < currentAd) dot.classList.add('watched');
+                if (i === currentAd) dot.classList.add('current');
+            });
+            adCounter.textContent = `Ad ${currentAd + 1} of ${TOTAL_ADS}`;
+        }
+
+        // ============ UPDATE AD CONTENT ============
+        function updateAdContent() {
+            const ad = ads[currentAd % ads.length];
+            adIcon.textContent = ad.icon;
+            adTitle.textContent = ad.title;
+            adDesc.textContent = ad.desc;
+        }
+
+        // ============ START AD TIMER ============
+        function startAdTimer() {
+            let seconds = 5;
+            adTimer.textContent = seconds;
+            watchAdBtn.disabled = true;
+            watchAdBtn.textContent = '⏳ Please wait...';
+
+            if (timerInterval) clearInterval(timerInterval);
+
+            timerInterval = setInterval(() => {
+                seconds--;
+                adTimer.textContent = seconds;
+
+                if (seconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    watchAdBtn.disabled = false;
+                    watchAdBtn.textContent = '✅ Next Ad';
+                }
+            }, 1000);
+        }
+
+        // ============ START AD FLOW ============
+        function startAdFlow() {
+            currentAd = 0;
+            adScreen.classList.add('active');
+            congratsScreen.classList.remove('active');
+            initProgress();
+            updateAdContent();
+            startAdTimer();
+        }
+
+        // ============ WATCH NEXT AD ============
+        watchAdBtn.addEventListener('click', function() {
+            if (watchAdBtn.disabled) return;
+
+            currentAd++;
+
+            if (currentAd >= TOTAL_ADS) {
+                // All ads completed!
+                adScreen.classList.remove('active');
+                congratsScreen.classList.add('active');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Sign In & Start Watching';
+                signupBtn.disabled = false;
+                signupBtn.textContent = 'Sign Up & Start Watching';
+                return;
+            }
+
+            updateProgress();
+            updateAdContent();
+            startAdTimer();
+        });
+
+        // ============ TAB SWITCHING ============
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                tabBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const tab = this.dataset.tab;
+                loginForm.classList.toggle('active', tab === 'login');
+                signupForm.classList.toggle('active', tab === 'signup');
+                
+                // Reset ad screens if showing
+                adScreen.classList.remove('active');
+                congratsScreen.classList.remove('active');
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Sign In & Start Watching';
+                signupBtn.disabled = false;
+                signupBtn.textContent = 'Sign Up & Start Watching';
+            });
+        });
+
+        // ============ LOGIN ============
+        loginBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const email = loginEmail.value.trim();
+            const pass = loginPassword.value.trim();
+
+            if (!email || !pass) {
+                loginError.classList.add('show');
+                return;
+            }
+            loginError.classList.remove('show');
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = '⏳ Starting...';
+            setTimeout(() => {
+                loginBtn.textContent = '✅ Watching Ads';
+                startAdFlow();
+            }, 400);
+        });
+
+        // ============ SIGNUP ============
+        signupBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const name = signupName.value.trim();
+            const email = signupEmail.value.trim();
+            const pass = signupPassword.value.trim();
+
+            if (!name || !email || !pa
